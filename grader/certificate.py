@@ -29,13 +29,13 @@ def build_certificate(*, student_name, exam_title, score, max_score, percent, pa
     pdf.set_text_color(*accent)
     pdf.set_font("DejaVu", "B", 32)
     pdf.set_xy(15, 38)
-    title = "CHỨNG NHẬN HOÀN THÀNH" if passed else "PHIẾU KẾT QUẢ BÀI THI"
+    title = "CERTIFICATE OF COMPLETION" if passed else "EXAM RESULT"
     pdf.cell(267, 14, title, align="C")
 
     pdf.set_text_color(60, 60, 60)
     pdf.set_font("DejaVu", "", 15)
     pdf.set_xy(15, 64)
-    pdf.cell(267, 10, "Xác nhận thí sinh", align="C")
+    pdf.cell(267, 10, "This is to certify that", align="C")
 
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("DejaVu", "B", 28)
@@ -44,7 +44,7 @@ def build_certificate(*, student_name, exam_title, score, max_score, percent, pa
 
     pdf.set_font("DejaVu", "", 15)
     pdf.set_xy(15, 100)
-    verb = "đã hoàn thành xuất sắc bài thi" if passed else "đã tham gia bài thi"
+    verb = "has successfully completed the exam" if passed else "has taken the exam"
     pdf.cell(267, 10, verb, align="C")
 
     pdf.set_font("DejaVu", "B", 20)
@@ -53,13 +53,13 @@ def build_certificate(*, student_name, exam_title, score, max_score, percent, pa
 
     pdf.set_font("DejaVu", "", 16)
     pdf.set_xy(15, 140)
-    pdf.cell(267, 10, f"Điểm: {score:g}/{max_score:g}  ({percent:g}%)", align="C")
+    pdf.cell(267, 10, f"Score: {score:g}/{max_score:g}  ({percent:g}%)", align="C")
 
     pdf.set_font("DejaVu", "", 10)
     pdf.set_text_color(90, 90, 90)
     pdf.set_xy(25, 178)
-    pdf.cell(120, 6, f"Ngày cấp: {issued_at}")
+    pdf.cell(120, 6, f"Issued on: {issued_at}")
     pdf.set_xy(152, 178)
-    pdf.cell(120, 6, f"Mã chứng nhận: {cert_id}", align="R")
+    pdf.cell(120, 6, f"Certificate ID: {cert_id}", align="R")
 
     return bytes(pdf.output())

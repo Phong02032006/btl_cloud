@@ -33,7 +33,7 @@ def login(client, name, email, role):
 
 def test_full_flow(app):
     teacher, student, other = app.test_client(), app.test_client(), app.test_client()
-    login(teacher, "Cô Lan", "lan@school.edu", "teacher")
+    login(teacher, "Ms. Lane", "lan@school.edu", "teacher")
     login(student, "Nguyễn An", "an@school.edu", "student")
     login(other, "Trần Bình", "binh@school.edu", "student")
 
@@ -42,17 +42,17 @@ def test_full_flow(app):
     assert teacher.post("/teacher/exams/new", data={"title": "x"}).status_code == 400
 
     t = csrf(teacher, "/teacher")
-    r = teacher.post("/teacher/exams/new", data={"csrf": t, "title": "Kiểm tra Cloud", "duration_minutes": "10",
+    r = teacher.post("/teacher/exams/new", data={"csrf": t, "title": "Cloud Quiz", "duration_minutes": "10",
                                                  "pass_percent": "60"})
     exam_id = int(r.headers["Location"].rstrip("/").split("/")[-1])
 
     # Option C left blank: the correct index for "D" must be remapped to 2.
     teacher.post(f"/teacher/exams/{exam_id}/questions", data={
-        "csrf": t, "text": "S3 là gì?", "options": ["Object storage", "VM", "", "DNS"], "correct": ["0"], "points": "1"})
+        "csrf": t, "text": "What is S3?", "options": ["Object storage", "VM", "", "DNS"], "correct": ["0"], "points": "1"})
     teacher.post(f"/teacher/exams/{exam_id}/questions", data={
         "csrf": t, "text": "Serverless?", "options": ["Lambda", "EC2", "", "Functions"], "correct": ["0", "3"],
         "points": "2"})
-    csv_data = "question,A,B,C,D,correct,points\nEntra ID dùng để?,Danh tính,Lưu trữ,,,A,1\nlỗi,chỉ một,,,,A,1\n"
+    csv_data = "question,A,B,C,D,correct,points\nWhat is Entra ID for?,Identity,Storage,,,A,1\nbroken,only one,,,,A,1\n"
     teacher.post(f"/teacher/exams/{exam_id}/import", data={
         "csrf": t, "file": (io.BytesIO(csv_data.encode()), "q.csv")}, content_type="multipart/form-data")
 
@@ -65,13 +65,13 @@ def test_full_flow(app):
     # Draft exams are hidden from students.
     assert student.get(f"/student/exams/{exam_id}").status_code == 404
     teacher.post(f"/teacher/exams/{exam_id}/publish", data={"csrf": t})
-    assert "Kiểm tra Cloud" in student.get("/student").get_data(as_text=True)
+    assert "Cloud Quiz" in student.get("/student").get_data(as_text=True)
 
     s = csrf(student, f"/student/exams/{exam_id}")
     r = student.post(f"/student/exams/{exam_id}", data={
         "csrf": s, f"q{qids[0]}": "0", f"q{qids[1]}": ["0", "2"], f"q{qids[2]}": "1"})
     sub_page = student.get(r.headers["Location"]).get_data(as_text=True)
-    assert "3/4" in sub_page and "75%" in sub_page and "ĐẠT" in sub_page
+    assert "3/4" in sub_page and "75%" in sub_page and "PASSED" in sub_page
 
     with app.app_context():
         sub = Submission.query.one()
@@ -85,10 +85,10 @@ def test_full_flow(app):
     assert student.get(f"/student/exams/{exam_id}").headers["Location"].endswith(f"/submissions/{sub.id}")
 
     report_csv = teacher.get(f"/teacher/exams/{exam_id}/results.csv").get_data(as_text=True)
-    assert "Nguyễn An" in report_csv and "Đạt" in report_csv
+    assert "Nguyễn An" in report_csv and "Passed" in report_csv
     report = teacher.get(f"/teacher/exams/{exam_id}/report").get_data(as_text=True)
-    assert "BÁO CÁO KẾT QUẢ" in report
-    assert "Kết quả bài thi" in teacher.get(f"/teacher/exams/{exam_id}/results").get_data(as_text=True)
+    assert "RESULTS REPORT" in report
+    assert "Exam results" in teacher.get(f"/teacher/exams/{exam_id}/results").get_data(as_text=True)
 
 
 def test_grader_failure_marks_error_and_regrade(app, monkeypatch):
@@ -113,7 +113,7 @@ def test_grader_failure_marks_error_and_regrade(app, monkeypatch):
     s = csrf(student, f"/student/exams/{exam_id}")
     r = student.post(f"/student/exams/{exam_id}", data={"csrf": s, "q1": "1"})
     page = student.get(r.headers["Location"]).get_data(as_text=True)
-    assert "Chấm lại" in page
+    assert "Regrade" in page
 
     monkeypatch.setattr(grader_client, "grade_submission", real)
     sub_path = r.headers["Location"]
@@ -163,7 +163,7 @@ def test_async_sqs_flow_with_callback(app, monkeypatch, tmp_path):
     sub_path = r.headers["Location"]
     assert len(queued) == 1 and queued[0]["answers"] == {"1": [1]}
     page = student.get(sub_path).get_data(as_text=True)
-    assert "Bài đang được chấm" in page and "Amazon SQS" in page
+    assert "Grading your answers" in page and "Amazon SQS" in page
     assert student.get(f"{sub_path}/status").get_json() == {"status": "pending", "stuck": False}
     # Not stuck yet, so regrade is refused.
     assert student.post(f"{sub_path}/regrade", data={"csrf": csrf(student, sub_path)}).status_code == 403

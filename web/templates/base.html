@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,20 +18,20 @@
     <span class="qc-cloud-pill ms-3 d-none d-md-inline"><i class="bi bi-cloud-check"></i> Azure + AWS</span>
     <div class="ms-auto d-flex align-items-center gap-3">
       {% if g.user %}
-        <a href="{{ url_for('index') }}" class="btn btn-sm btn-ghost d-none d-sm-inline-flex"><i class="bi bi-grid me-1"></i> Bảng điều khiển</a>
+        <a href="{{ url_for('index') }}" class="btn btn-sm btn-ghost d-none d-sm-inline-flex"><i class="bi bi-grid me-1"></i> Dashboard</a>
         <div class="d-flex align-items-center gap-2">
           <span class="qc-avatar">{{ g.user.name|initial }}</span>
           <div class="lh-sm d-none d-md-block">
             <div class="fw-semibold small">{{ g.user.name }}</div>
-            <span class="qc-role {{ g.user.role }}">{{ 'Giáo viên' if g.user.role == 'teacher' else 'Học sinh' }}</span>
+            <span class="qc-role {{ g.user.role }}">{{ 'Teacher' if g.user.role == 'teacher' else 'Student' }}</span>
           </div>
         </div>
         <form method="post" action="{{ url_for('auth.logout') }}" class="m-0">
           <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-          <button class="btn btn-sm btn-ghost" title="Đăng xuất"><i class="bi bi-box-arrow-right"></i></button>
+          <button class="btn btn-sm btn-ghost" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>
         </form>
       {% else %}
-        <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-primary">Đăng nhập</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-primary">Sign in</a>
       {% endif %}
     </div>
   </div>
@@ -47,7 +47,7 @@
 </main>
 <footer class="qc-footer">
   <div class="container d-flex flex-wrap justify-content-between gap-2">
-    <span>QuizCloud · Bài tập lớn Điện toán đám mây</span>
+    <span>QuizCloud · Cloud Computing course project</span>
     <span><i class="bi bi-microsoft"></i> Entra ID · Azure SQL · App Service &nbsp;|&nbsp; <i class="bi bi-amazon"></i> API Gateway · SQS · Lambda · S3 · SES</span>
   </div>
 </footer>

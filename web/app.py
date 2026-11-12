@@ -47,12 +47,14 @@ def register_security(app):
         if request.method == "POST" and request.endpoint != "grader_callback":
             sent = request.form.get("csrf", "")
             if not sent or not secrets.compare_digest(sent, session.get("csrf", "")):
-                abort(400, "CSRF token không hợp lệ")
+                abort(400, "Invalid CSRF token")
 
     app.jinja_env.globals.update(csrf_token=csrf_token, letters=LETTERS)
     app.jinja_env.filters["num"] = lambda x: "" if x is None else f"{x:g}"
-    # Vietnamese names put the given name last, so use the last word's initial.
-    app.jinja_env.filters["initial"] = lambda name: (name.split()[-1][:1] if name and name.split() else "?").upper()
+    # First letter of the given name, skipping titles such as "Dr." or "Ms.".
+    app.jinja_env.filters["initial"] = lambda name: next(
+        (w[0] for w in (name or "").split() if not w.endswith(".")), "?").upper()
+    app.jinja_env.filters["plural"] = lambda n, word: f"{n} {word}{'' if n == 1 else 's'}"
 
 
 def _own_exam(exam_id):
@@ -66,7 +68,7 @@ def _parse_correct(raw, n_options):
     """'A' / 'a;c' / 'B,D' -> [0] / [0, 2] / [1, 3]."""
     idx = sorted({LETTERS.index(c) for c in raw.upper() if c in LETTERS})
     if not idx or max(idx) >= n_options:
-        raise ValueError(f"đáp án đúng không hợp lệ: '{raw}'")
+        raise ValueError(f"invalid correct answer: '{raw}'")
     return idx
 
 
@@ -168,7 +170,7 @@ def register_routes(app):
         if request.method == "POST":
             title = request.form.get("title", "").strip()
             if not title:
-                flash("Tên bài thi không được để trống.", "danger")
+                flash("Exam title is required.", "danger")
                 return render_template("exam_form.html")
             exam = Exam(
                 title=title,
@@ -179,7 +181,7 @@ def register_routes(app):
             )
             db.session.add(exam)
             db.session.commit()
-            flash("Đã tạo bài thi. Hãy thêm câu hỏi.", "success")
+            flash("Exam created. Now add some questions.", "success")
             return redirect(url_for("exam_manage", exam_id=exam.id))
         return render_template("exam_form.html")
 
@@ -200,13 +202,13 @@ def register_routes(app):
         correct = sorted(kept.index(i) for i in chosen if i in kept)
         text = request.form.get("text", "").strip()
         if not text or len(options) < 2 or not correct:
-            flash("Câu hỏi cần nội dung, ít nhất 2 lựa chọn và ít nhất 1 đáp án đúng (ở ô có nội dung).", "danger")
+            flash("A question needs text, at least 2 options and at least 1 correct answer (on a filled-in option).", "danger")
         else:
             db.session.add(Question(exam=exam, text=text, options=options, correct=correct,
                                     points=max(0.0, request.form.get("points", 1, type=float)),
                                     position=len(exam.questions)))
             db.session.commit()
-            flash("Đã thêm câu hỏi.", "success")
+            flash("Question added.", "success")
         return redirect(url_for("exam_manage", exam_id=exam.id))
 
     @app.route("/teacher/exams/<int:exam_id>/import", methods=["POST"])
@@ -216,7 +218,7 @@ def register_routes(app):
         exam = _own_exam(exam_id)
         file = request.files.get("file")
         if not file:
-            flash("Chưa chọn file CSV.", "danger")
+            flash("Please choose a CSV file.", "danger")
             return redirect(url_for("exam_manage", exam_id=exam.id))
         reader = csv.DictReader(io.StringIO(file.read().decode("utf-8-sig")))
         added, errors = 0, []
@@ -224,16 +226,16 @@ def register_routes(app):
             try:
                 options = [row.get(k, "").strip() for k in "ABCD" if row.get(k, "").strip()]
                 if not row.get("question", "").strip() or len(options) < 2:
-                    raise ValueError("thiếu câu hỏi hoặc ít hơn 2 lựa chọn")
+                    raise ValueError("missing question text or fewer than 2 options")
                 db.session.add(Question(exam=exam, text=row["question"].strip(), options=options,
                                         correct=_parse_correct(row.get("correct", ""), len(options)),
                                         points=float(row.get("points") or 1),
                                         position=len(exam.questions)))
                 added += 1
             except (ValueError, KeyError) as exc:
-                errors.append(f"dòng {line}: {exc}")
+                errors.append(f"line {line}: {exc}")
         db.session.commit()
-        flash(f"Đã nhập {added} câu hỏi.", "success" if added else "warning")
+        flash(f"Imported {added} question(s).", "success" if added else "warning")
         for e in errors[:10]:
             flash(e, "danger")
         return redirect(url_for("exam_manage", exam_id=exam.id))
@@ -246,7 +248,7 @@ def register_routes(app):
         if q.exam_id != exam.id:
             abort(404)
         if exam.submissions:
-            flash("Không thể xoá câu hỏi khi đã có bài nộp.", "danger")
+            flash("Questions cannot be deleted once there are submissions.", "danger")
         else:
             db.session.delete(q)
             db.session.commit()
@@ -257,11 +259,11 @@ def register_routes(app):
     def exam_publish(exam_id):
         exam = _own_exam(exam_id)
         if not exam.published and not exam.questions:
-            flash("Cần ít nhất 1 câu hỏi trước khi mở bài thi.", "danger")
+            flash("Add at least 1 question before publishing the exam.", "danger")
         else:
             exam.published = not exam.published
             db.session.commit()
-            flash("Đã mở bài thi cho học sinh." if exam.published else "Đã đóng bài thi.", "success")
+            flash("Exam published to students." if exam.published else "Exam closed.", "success")
         return redirect(url_for("exam_manage", exam_id=exam.id))
 
     @app.route("/teacher/exams/<int:exam_id>/delete", methods=["POST"])
@@ -269,7 +271,7 @@ def register_routes(app):
     def exam_delete(exam_id):
         db.session.delete(_own_exam(exam_id))
         db.session.commit()
-        flash("Đã xoá bài thi.", "success")
+        flash("Exam deleted.", "success")
         return redirect(url_for("teacher_dashboard"))
 
     @app.route("/teacher/exams/<int:exam_id>/results")
@@ -285,10 +287,10 @@ def register_routes(app):
         exam = _own_exam(exam_id)
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["Họ tên", "Email", "Điểm", "Điểm tối đa", "Phần trăm", "Kết quả", "Nộp lúc (UTC)", "Mã chứng nhận"])
+        w.writerow(["Full name", "Email", "Score", "Max score", "Percent", "Result", "Submitted at (UTC)", "Certificate ID"])
         for s in sorted(exam.submissions, key=lambda s: s.submitted_at):
             w.writerow([s.student.name, s.student.email, s.score, s.max_score, s.percent,
-                        "Đạt" if s.passed else "Chưa đạt", s.submitted_at.strftime("%Y-%m-%d %H:%M"),
+                        "Passed" if s.passed else "Failed", s.submitted_at.strftime("%Y-%m-%d %H:%M"),
                         s.certificate_id or ""])
         # BOM so Excel opens Vietnamese text correctly.
         return Response("\ufeff" + buf.getvalue(), mimetype="text/csv",
@@ -328,7 +330,7 @@ def register_routes(app):
         db.session.add(sub)
         db.session.commit()
         if not _grade_and_save(app, sub):
-            flash("Đã lưu bài làm nhưng chấm điểm thất bại. Bấm 'Chấm lại' hoặc báo giáo viên.", "danger")
+            flash("Your answers were saved but grading failed. Click 'Regrade' or contact your teacher.", "danger")
         return redirect(url_for("submission_view", sub_id=sub.id))
 
     @app.route("/submissions/<int:sub_id>")
@@ -379,7 +381,7 @@ def register_routes(app):
         if g.user.id not in (sub.student_id, sub.exam.teacher_id) or not (sub.status == "error" or _is_stuck(sub)):
             abort(403)
         if not _grade_and_save(app, sub):
-            flash("Vẫn chưa chấm được, thử lại sau.", "danger")
+            flash("Grading is still unavailable, please try again later.", "danger")
         return redirect(url_for("submission_view", sub_id=sub.id))
 
     @app.route("/local-certificates/<path:key>")
@@ -394,16 +396,16 @@ def register_routes(app):
 
     @app.errorhandler(403)
     def forbidden(_):
-        return render_template("error.html", code=403, message="Bạn không có quyền truy cập trang này."), 403
+        return render_template("error.html", code=403, message="You do not have permission to access this page."), 403
 
     @app.errorhandler(404)
     def not_found(_):
-        return render_template("error.html", code=404, message="Không tìm thấy trang."), 404
+        return render_template("error.html", code=404, message="Page not found."), 404
 
 
 def register_cli(app):
     @app.cli.command("init-db")
-    @click.option("--demo", is_flag=True, help="Thêm giáo viên, bài thi và bài nộp mẫu")
+    @click.option("--demo", is_flag=True, help="Add a sample teacher, exams and submissions")
     def init_db(demo):
         """Create tables (works on SQLite and Azure SQL)."""
         db.create_all()

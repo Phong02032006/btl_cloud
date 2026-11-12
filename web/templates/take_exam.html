@@ -6,7 +6,7 @@
     <div class="fw-bold">{{ exam.title }}</div>
     <div class="d-flex align-items-center gap-2 mt-1">
       <div class="qc-progress flex-grow-1" style="max-width:320px"><span id="progress-bar" style="width:0%"></span></div>
-      <span class="small text-secondary"><span id="answered">0</span>/{{ exam.questions|length }} câu đã trả lời</span>
+      <span class="small text-secondary"><span id="answered">0</span>/{{ exam.questions|length }} answered</span>
     </div>
   </div>
   <span class="qc-timer" id="timer-box"><i class="bi bi-stopwatch"></i> <span id="timer"></span></span>
@@ -22,7 +22,7 @@
             <div class="qc-q-num">{{ loop.index }}</div>
             <div>
               <div class="fw-semibold fs-6">{{ q.text }}</div>
-              <div class="small text-secondary">{{ q.points|num }} điểm{% if q.is_multi %} · <span class="text-info fw-semibold">Chọn tất cả đáp án đúng</span>{% endif %}</div>
+              <div class="small text-secondary">{{ q.points|num }} point{{ '' if q.points == 1 else 's' }}{% if q.is_multi %} · <span class="text-info fw-semibold">Select all correct answers</span>{% endif %}</div>
             </div>
           </div>
           {% for opt in q.options %}
@@ -37,12 +37,12 @@
     </div>
     <div class="col-lg-3">
       <div class="qc-card p-4" style="position:sticky;top:180px">
-        <div class="qc-section-title mb-3">Danh sách câu</div>
+        <div class="qc-section-title mb-3">Questions</div>
         <div class="qc-nav-grid mb-4">
           {% for q in exam.questions %}<a href="#card-{{ q.id }}" id="nav-{{ q.id }}">{{ loop.index }}</a>{% endfor %}
         </div>
-        <button class="btn btn-primary w-100 btn-lg" onclick="return confirm('Nộp bài? Bạn chỉ được nộp 1 lần.')"><i class="bi bi-send-check"></i> Nộp bài</button>
-        <p class="small text-secondary mt-3 mb-0"><i class="bi bi-info-circle"></i> Hết giờ hệ thống sẽ tự động nộp bài.</p>
+        <button class="btn btn-primary w-100 btn-lg" onclick="return confirm('Submit your answers? You can only submit once.')"><i class="bi bi-send-check"></i> Submit</button>
+        <p class="small text-secondary mt-3 mb-0"><i class="bi bi-info-circle"></i> Your answers are submitted automatically when time runs out.</p>
       </div>
     </div>
   </div>

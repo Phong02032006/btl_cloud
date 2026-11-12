@@ -48,17 +48,17 @@ def _send_email(to, student_name, exam_title, result, url):
     sender = os.environ.get("SES_SENDER")
     if not sender or not to:
         return
-    status = "ĐẠT" if result["passed"] else "CHƯA ĐẠT"
+    status = "PASSED" if result["passed"] else "NOT PASSED"
     text = (
-        f"Chào {student_name},\n\nKết quả bài thi \"{exam_title}\": "
+        f"Hi {student_name},\n\nYour result for \"{exam_title}\": "
         f"{result['score']:g}/{result['max_score']:g} ({result['percent']:g}%) - {status}.\n"
-        f"Tải file PDF (link hết hạn sau 1 giờ): {url}\n"
+        f"Download your PDF (link expires in 1 hour): {url}\n"
     )
     try:
         _client("ses").send_email(
             Source=sender,
             Destination={"ToAddresses": [to]},
-            Message={"Subject": {"Data": f"Kết quả bài thi: {exam_title}", "Charset": "UTF-8"},
+            Message={"Subject": {"Data": f"Exam result: {exam_title}", "Charset": "UTF-8"},
                      "Body": {"Text": {"Data": text, "Charset": "UTF-8"}}},
         )
     except Exception:  # email is best-effort; grading result must still be delivered

@@ -21,7 +21,7 @@ def process_submission(payload, store):
         max_score=result["max_score"],
         percent=result["percent"],
         passed=passed,
-        issued_at=datetime.datetime.now(datetime.timezone.utc).strftime("%d/%m/%Y"),
+        issued_at=datetime.datetime.now(datetime.timezone.utc).strftime("%B %d, %Y"),
         cert_id=cert_id,
     )
     key = f"certificates/exam-{exam['id']}/submission-{payload['submission_id']}-{cert_id}.pdf"
