@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Đăng nhập{% endblock %}
+{% block title %}Sign in{% endblock %}
 {% block content %}
 <div class="qc-auth-wrap">
   <div class="qc-card p-4 p-md-5" style="max-width:460px;width:100%">
     <div class="text-center mb-4">
       <span class="qc-logo mx-auto mb-3" style="width:52px;height:52px;font-size:1.5rem"><i class="bi bi-lightning-charge-fill"></i></span>
-      <h3 class="mb-1">Chào mừng trở lại</h3>
-      <p class="text-secondary small mb-0">Chế độ demo: chọn nhanh một tài khoản mẫu</p>
+      <h3 class="mb-1">Welcome back</h3>
+      <p class="text-secondary small mb-0">Demo mode: pick a sample account to continue</p>
     </div>
 
     <div class="d-grid gap-2">
       {% for name, email, role, icon, tone, sub in [
-        ('Cô Nguyễn Thị Mai', 'teacher@demo.local', 'teacher', 'bi-person-workspace', 'tone-amber', 'Giáo viên · tạo đề, xem thống kê'),
-        ('Nguyễn Văn An', 'an@demo.local', 'student', 'bi-mortarboard', 'tone-green', 'Học sinh · làm bài, nhận chứng nhận'),
+        ('Dr. Sarah Mitchell', 'teacher@demo.local', 'teacher', 'bi-person-workspace', 'tone-amber', 'Teacher · create exams, view statistics'),
+        ('Alex Johnson', 'alex@demo.local', 'student', 'bi-mortarboard', 'tone-green', 'Student · take exams, earn certificates'),
       ] %}
       <form method="post" class="m-0">
         <input type="hidden" name="csrf" value="{{ csrf_token() }}">
@@ -26,22 +26,22 @@
       {% endfor %}
     </div>
 
-    <div class="qc-divider">hoặc nhập tài khoản khác</div>
+    <div class="qc-divider">or sign in with another account</div>
 
     <form method="post">
       <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-      <div class="mb-3"><label class="form-label">Họ tên</label><input name="name" class="form-control" placeholder="Nguyễn Văn A" required></div>
-      <div class="mb-3"><label class="form-label">Email</label><input name="email" type="email" class="form-control" placeholder="ban@truong.edu.vn" required></div>
+      <div class="mb-3"><label class="form-label">Full name</label><input name="name" class="form-control" placeholder="Jane Doe" required></div>
+      <div class="mb-3"><label class="form-label">Email</label><input name="email" type="email" class="form-control" placeholder="you@school.edu" required></div>
       <div class="mb-4">
-        <label class="form-label">Vai trò</label>
+        <label class="form-label">Role</label>
         <select name="role" class="form-select">
-          <option value="student">Học sinh</option>
-          <option value="teacher">Giáo viên</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
         </select>
       </div>
-      <button class="btn btn-primary w-100 btn-lg">Đăng nhập</button>
+      <button class="btn btn-primary w-100 btn-lg">Sign in</button>
     </form>
-    <p class="text-secondary small text-center mt-4 mb-0"><i class="bi bi-info-circle"></i> Khi deploy, đặt <code>AUTH_MODE=entra</code> để đăng nhập bằng Microsoft Entra External ID.</p>
+    <p class="text-secondary small text-center mt-4 mb-0"><i class="bi bi-info-circle"></i> In production, set <code>AUTH_MODE=entra</code> to sign in with Microsoft Entra External ID.</p>
   </div>
 </div>
 {% endblock %}

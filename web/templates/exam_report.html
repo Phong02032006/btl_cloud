@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Báo cáo - {{ exam.title }}</title>
+  <title>Report - {{ exam.title }}</title>
   <style>
     body { font-family: "Times New Roman", serif; margin: 2rem auto; max-width: 900px; color: #222; }
     h1 { font-size: 1.6rem; margin-bottom: .2rem; }
@@ -16,21 +16,21 @@
   </style>
 </head>
 <body>
-  <button class="noprint" onclick="window.print()">In / Lưu PDF</button>
-  <h1>BÁO CÁO KẾT QUẢ: {{ exam.title }}</h1>
-  <div class="muted">Giáo viên: {{ exam.teacher.name }} · {{ exam.questions|length }} câu · Tổng {{ exam.max_score|num }} điểm · Ngưỡng đạt {{ exam.pass_percent|num }}%</div>
+  <button class="noprint" onclick="window.print()">Print / Save as PDF</button>
+  <h1>RESULTS REPORT: {{ exam.title }}</h1>
+  <div class="muted">Teacher: {{ exam.teacher.name }} · {{ exam.questions|length|plural("question") }} · {{ exam.max_score|num }} points total · Pass mark {{ exam.pass_percent|num }}%</div>
 
-  <h2>1. Thống kê chung</h2>
+  <h2>1. Overview</h2>
   {% if stats %}
   <table>
-    <tr><th>Số bài nộp</th><th>Điểm trung bình</th><th>Cao nhất</th><th>Thấp nhất</th><th>Tỉ lệ đạt</th></tr>
+    <tr><th>Submissions</th><th>Average score</th><th>Highest</th><th>Lowest</th><th>Pass rate</th></tr>
     <tr><td>{{ stats.count }}</td><td>{{ stats.avg }}%</td><td>{{ stats.max }}%</td><td>{{ stats.min }}%</td><td>{{ stats.pass_rate }}%</td></tr>
   </table>
-  {% else %}<p class="muted">Chưa có bài đã chấm.</p>{% endif %}
+  {% else %}<p class="muted">No graded submissions yet.</p>{% endif %}
 
-  <h2>2. Tỉ lệ trả lời đúng theo câu hỏi</h2>
+  <h2>2. Correct-answer rate per question</h2>
   <table>
-    <tr><th style="width:55%">Câu hỏi</th><th>Tỉ lệ đúng</th><th style="width:30%"></th></tr>
+    <tr><th style="width:55%">Question</th><th>Correct rate</th><th style="width:30%"></th></tr>
     {% for q in exam.questions %}
       {% set p = qstats[q.id] %}
       <tr><td>{{ loop.index }}. {{ q.text }}</td><td>{{ p ~ '%' if p is not none else '-' }}</td>
@@ -38,12 +38,12 @@
     {% endfor %}
   </table>
 
-  <h2>3. Bảng điểm</h2>
+  <h2>3. Grade sheet</h2>
   <table>
-    <tr><th>#</th><th>Học sinh</th><th>Email</th><th>Điểm</th><th>%</th><th>Kết quả</th></tr>
+    <tr><th>#</th><th>Student</th><th>Email</th><th>Score</th><th>%</th><th>Result</th></tr>
     {% for s in submissions if s.status == 'graded' %}
       <tr><td>{{ loop.index }}</td><td>{{ s.student.name }}</td><td>{{ s.student.email }}</td>
-        <td>{{ s.score|num }}/{{ s.max_score|num }}</td><td>{{ s.percent|num }}</td><td>{{ 'Đạt' if s.passed else 'Chưa đạt' }}</td></tr>
+        <td>{{ s.score|num }}/{{ s.max_score|num }}</td><td>{{ s.percent|num }}</td><td>{{ 'Passed' if s.passed else 'Failed' }}</td></tr>
     {% endfor %}
   </table>
 </body>

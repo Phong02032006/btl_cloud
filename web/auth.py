@@ -75,7 +75,7 @@ def login():
         email = request.form.get("email", "").strip().lower()
         role = request.form.get("role")
         if not name or not email or role not in ROLES:
-            flash("Vui lòng nhập đủ tên, email và vai trò.", "danger")
+            flash("Please enter your name, email and role.", "danger")
         else:
             _sign_in(f"dev:{email}", name, email, role)
             return redirect(url_for("index"))
@@ -89,10 +89,10 @@ def callback():
     try:
         result = _msal_app().acquire_token_by_auth_code_flow(session.pop("auth_flow", {}), request.args)
     except ValueError:  # state mismatch / replayed callback
-        flash("Phiên đăng nhập không hợp lệ, vui lòng thử lại.", "danger")
+        flash("Invalid sign-in session, please try again.", "danger")
         return redirect(url_for("index"))
     if "error" in result:
-        flash(f"Đăng nhập thất bại: {result.get('error_description', result['error'])}", "danger")
+        flash(f"Sign-in failed: {result.get('error_description', result['error'])}", "danger")
         return redirect(url_for("index"))
 
     claims = result["id_token_claims"]

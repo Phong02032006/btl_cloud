@@ -80,8 +80,7 @@ Lambda **không kết nối trực tiếp Azure SQL** (tránh cài ODBC driver t
 │   ├── fonts/              # font Unicode để PDF hiển thị tiếng Việt
 │   ├── requirements.txt
 │   └── build_zip.sh        # tạo grader.zip để upload lên Lambda
-├── tests/                  # pytest
-└── docs/bao-cao/           # bản nháp báo cáo (Markdown) + script xuất Word
+└── tests/                  # pytest
 ```
 
 ## Chạy demo trên máy (bấm đúp là chạy)

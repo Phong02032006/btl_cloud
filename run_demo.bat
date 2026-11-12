@@ -7,27 +7,27 @@ set "PY="
 where py >nul 2>nul && set "PY=py -3"
 if not defined PY where python >nul 2>nul && set "PY=python"
 if not defined PY (
-  echo [!] Chua cai Python. Tai tai https://www.python.org/downloads/ ^(nho tick "Add python.exe to PATH"^) roi chay lai.
+  echo [!] Python is not installed. Get it from https://www.python.org/downloads/ ^(tick "Add python.exe to PATH"^) and run this again.
   pause
   exit /b 1
 )
 
 if not exist ".venv\Scripts\python.exe" (
-  echo [1/3] Tao moi truong ao .venv ...
+  echo [1/3] Creating virtual environment .venv ...
   %PY% -m venv .venv || goto :fail
 )
 
-echo [2/3] Cai thu vien (lan dau mat khoang 1 phut) ...
+echo [2/3] Installing dependencies (about 1 minute the first time) ...
 ".venv\Scripts\python.exe" -m pip install -q --disable-pip-version-check -r requirements-local.txt || goto :fail
 
 cd web
 if not exist "instance\quiz.db" (
-  echo [3/3] Tao du lieu mau ...
+  echo [3/3] Creating sample data ...
   "..\.venv\Scripts\python.exe" -m flask --app app init-db --demo || goto :fail
 )
 
 echo.
-echo  QuizCloud dang chay tai http://127.0.0.1:5000  (dong cua so nay de tat)
+echo  QuizCloud is running at http://127.0.0.1:5000  (close this window to stop)
 echo.
 start "" cmd /c "timeout /t 3 >nul & start http://127.0.0.1:5000"
 "..\.venv\Scripts\python.exe" -m flask --app app run --port 5000
@@ -35,6 +35,6 @@ goto :eof
 
 :fail
 echo.
-echo [!] Co loi xay ra. Chup man hinh cua so nay gui cho nhom de ho tro.
+echo [!] Something went wrong. Take a screenshot of this window and send it to the team.
 pause
 exit /b 1

@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Trang chủ{% endblock %}
+{% block title %}Home{% endblock %}
 {% block content %}
 <section class="qc-hero mb-5">
   <div class="row align-items-center position-relative" style="z-index:1">
     <div class="col-lg-7">
-      <span class="badge rounded-pill text-bg-light text-primary mb-3 px-3 py-2"><i class="bi bi-stars"></i> Nền tảng thi trắc nghiệm đa đám mây</span>
-      <h1 class="mb-3">Tạo đề, làm bài, chấm điểm &amp; cấp chứng nhận tự động</h1>
-      <p class="lead mb-4">Giáo viên soạn đề trong vài phút. Học sinh làm bài trực tuyến, nhận điểm ngay và tải chứng nhận PDF được sinh tự động trên AWS Lambda.</p>
+      <span class="badge rounded-pill text-bg-light text-primary mb-3 px-3 py-2"><i class="bi bi-stars"></i> Multi-cloud online quiz platform</span>
+      <h1 class="mb-3">Create exams, take tests, auto-grade &amp; issue certificates</h1>
+      <p class="lead mb-4">Teachers build an exam in minutes. Students take it online, get their score instantly and download a PDF certificate generated automatically on AWS Lambda.</p>
       <div class="d-flex flex-wrap gap-2">
-        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg"><i class="bi bi-box-arrow-in-right me-1"></i> Bắt đầu ngay</a>
-        <a href="#kien-truc" class="btn btn-outline-light btn-lg">Xem kiến trúc</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg"><i class="bi bi-box-arrow-in-right me-1"></i> Get started</a>
+        <a href="#architecture" class="btn btn-outline-light btn-lg">View architecture</a>
       </div>
     </div>
     <div class="col-lg-5 d-none d-lg-block">
@@ -17,14 +17,14 @@
         <div class="d-flex align-items-center gap-3 mb-3">
           <div class="qc-ring" style="--p:88"><div><div><div class="big">8.8</div><div class="small text-secondary">/ 10</div></div></div></div>
           <div>
-            <div class="qc-chip success mb-2"><i class="bi bi-patch-check-fill"></i> ĐẠT</div>
-            <div class="fw-bold">Điện toán đám mây</div>
-            <div class="small text-secondary">Chấm tự động trong &lt; 1 giây</div>
+            <div class="qc-chip success mb-2"><i class="bi bi-patch-check-fill"></i> PASSED</div>
+            <div class="fw-bold">Cloud Computing</div>
+            <div class="small text-secondary">Graded automatically in seconds</div>
           </div>
         </div>
         <div class="qc-cert-banner d-flex align-items-center gap-3">
           <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger"></i>
-          <div class="small"><b>Chứng nhận PDF</b><br><span class="text-secondary">Lưu trên Amazon S3 · link presigned</span></div>
+          <div class="small"><b>PDF certificate</b><br><span class="text-secondary">Stored on Amazon S3 · presigned link</span></div>
         </div>
       </div>
     </div>
@@ -33,10 +33,10 @@
 
 <div class="row g-4 mb-5">
   {% for icon, tone, title, text in [
-    ('bi-shield-lock', 'tone-indigo', 'Phân quyền chặt chẽ', 'Đăng nhập Microsoft Entra ID, vai trò Giáo viên / Học sinh tách biệt.'),
-    ('bi-lightning-charge', 'tone-amber', 'Chấm điểm tức thì', 'Hàng đợi SQS + AWS Lambda chấm bài serverless, chịu tải khi cả lớp nộp cùng lúc.'),
-    ('bi-file-earmark-richtext', 'tone-pink', 'Sinh file động', 'Chứng nhận PDF, báo cáo HTML in được và xuất bảng điểm CSV.'),
-    ('bi-graph-up-arrow', 'tone-green', 'Thống kê trực quan', 'Điểm trung bình, tỉ lệ đạt và tỉ lệ đúng của từng câu hỏi.'),
+    ('bi-shield-lock', 'tone-indigo', 'Strict access control', 'Sign in with Microsoft Entra ID, with separate Teacher and Student roles.'),
+    ('bi-lightning-charge', 'tone-amber', 'Instant grading', 'SQS queue + AWS Lambda grade serverlessly and handle a whole class submitting at once.'),
+    ('bi-file-earmark-richtext', 'tone-pink', 'Dynamic files', 'PDF certificates, printable HTML reports and CSV grade exports.'),
+    ('bi-graph-up-arrow', 'tone-green', 'Clear statistics', 'Average score, pass rate and the correct-answer rate of every question.'),
   ] %}
   <div class="col-md-6 col-lg-3">
     <div class="qc-card qc-card-hover qc-feature p-4 h-100">
@@ -48,9 +48,9 @@
   {% endfor %}
 </div>
 
-<section id="kien-truc" class="qc-card p-4 p-lg-5">
-  <div class="qc-section-title mb-2">Kiến trúc đa đám mây</div>
-  <h3 class="mb-4">Azure quản lý người dùng &amp; dữ liệu, AWS xử lý chấm điểm &amp; file</h3>
+<section id="architecture" class="qc-card p-4 p-lg-5">
+  <div class="qc-section-title mb-2">Multi-cloud architecture</div>
+  <h3 class="mb-4">Azure manages users &amp; data, AWS handles grading &amp; files</h3>
   <div class="row g-3 align-items-stretch">
     <div class="col-md-5">
       <div class="qc-cloud-box h-100">

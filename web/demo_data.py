@@ -5,40 +5,40 @@ from models import Exam, Question, Submission, User, db
 
 EXAMS = [
     {
-        "title": "Điện toán đám mây - Kiểm tra giữa kỳ",
-        "description": "Kiến thức nền tảng về AWS, Azure và mô hình dịch vụ đám mây.",
+        "title": "Cloud Computing - Midterm Quiz",
+        "description": "Fundamentals of AWS, Azure and cloud service models.",
         "duration": 15, "pass": 50, "published": True,
         "questions": [
-            ("Dịch vụ nào của AWS dùng để lưu trữ object?", ["Amazon EC2", "Amazon S3", "Amazon RDS", "AWS Lambda"], [1]),
-            ("Microsoft Entra ID dùng cho mục đích gì?", ["Lưu file", "Quản lý danh tính & phân quyền", "Chạy container", "Gửi email"], [1]),
-            ("Những dịch vụ nào là serverless?", ["AWS Lambda", "Amazon EC2", "Azure Functions", "Azure Virtual Machines"], [0, 2]),
-            ("Presigned URL của S3 dùng để?", ["Cấp quyền truy cập object tạm thời", "Xoá bucket", "Tạo IAM user", "Mã hoá ổ đĩa"], [0]),
-            ("Azure SQL Database thuộc mô hình dịch vụ nào?", ["IaaS", "PaaS", "SaaS", "On-premise"], [1]),
-            ("Mô hình nào cho phép kết hợp nhiều nhà cung cấp đám mây?", ["Single-cloud", "Multi-cloud", "Private cloud", "Edge"], [1]),
+            ("Which AWS service is used for object storage?", ["Amazon EC2", "Amazon S3", "Amazon RDS", "AWS Lambda"], [1]),
+            ("What is Microsoft Entra ID used for?", ["File storage", "Identity & access management", "Running containers", "Sending email"], [1]),
+            ("Which of these services are serverless?", ["AWS Lambda", "Amazon EC2", "Azure Functions", "Azure Virtual Machines"], [0, 2]),
+            ("What is an S3 presigned URL for?", ["Granting temporary access to an object", "Deleting a bucket", "Creating an IAM user", "Encrypting a disk"], [0]),
+            ("Which service model does Azure SQL Database belong to?", ["IaaS", "PaaS", "SaaS", "On-premises"], [1]),
+            ("Which model combines several cloud providers?", ["Single-cloud", "Multi-cloud", "Private cloud", "Edge"], [1]),
         ],
     },
     {
-        "title": "Bảo mật trên đám mây",
-        "description": "IAM, mã hoá và nguyên tắc đặc quyền tối thiểu.",
+        "title": "Cloud Security Basics",
+        "description": "IAM, encryption and the principle of least privilege.",
         "duration": 10, "pass": 60, "published": True,
         "questions": [
-            ("Nguyên tắc 'least privilege' nghĩa là?", ["Cấp toàn quyền cho admin", "Chỉ cấp quyền tối thiểu cần thiết", "Không dùng mật khẩu", "Tắt log"], [1]),
-            ("Dịch vụ nào lưu bí mật (secret) an toàn?", ["AWS Secrets Manager", "Amazon S3 public", "Azure Key Vault", "Excel"], [0, 2]),
-            ("MFA là viết tắt của?", ["Multi-Factor Authentication", "Main File Access", "Multi-Function App", "Managed Firewall"], [0]),
-            ("Khi nào nên bật 'Block Public Access' cho S3?", ["Không bao giờ", "Khi bucket chứa dữ liệu riêng tư", "Chỉ khi host web", "Khi dùng Lambda"], [1]),
+            ("What does the 'least privilege' principle mean?", ["Give admins full access", "Grant only the minimum permissions needed", "Never use passwords", "Turn off logging"], [1]),
+            ("Which services store secrets securely?", ["AWS Secrets Manager", "A public S3 bucket", "Azure Key Vault", "A spreadsheet"], [0, 2]),
+            ("What does MFA stand for?", ["Multi-Factor Authentication", "Main File Access", "Multi-Function App", "Managed Firewall"], [0]),
+            ("When should you enable S3 'Block Public Access'?", ["Never", "When the bucket holds private data", "Only when hosting a website", "Only with Lambda"], [1]),
         ],
     },
     {
-        "title": "Khảo sát mức độ hài lòng môn học",
-        "description": "Bản nháp - chưa mở cho học sinh.",
+        "title": "Course Satisfaction Survey",
+        "description": "Draft - not yet published to students.",
         "duration": 5, "pass": 0, "published": False,
         "questions": [
-            ("Bạn thấy môn học có hữu ích không?", ["Rất hữu ích", "Hữu ích", "Bình thường", "Không hữu ích"], [0, 1, 2, 3]),
+            ("How useful did you find this course?", ["Very useful", "Useful", "Neutral", "Not useful"], [0, 1, 2, 3]),
         ],
     },
 ]
 
-STUDENTS = ["Nguyễn Minh Anh", "Trần Quốc Bảo", "Lê Thu Hà", "Phạm Đức Huy", "Võ Ngọc Lan", "Đặng Gia Khánh"]
+STUDENTS = ["Emma Nguyen", "Liam Tran", "Olivia Le", "Noah Pham", "Ava Vo", "Lucas Dang"]
 
 
 def seed_demo(app, grade_fn):
@@ -46,7 +46,7 @@ def seed_demo(app, grade_fn):
     if Exam.query.first():
         return False
     rng = random.Random(42)
-    teacher = User(external_id="dev:teacher@demo.local", name="Cô Nguyễn Thị Mai", email="teacher@demo.local",
+    teacher = User(external_id="dev:teacher@demo.local", name="Dr. Sarah Mitchell", email="teacher@demo.local",
                    role="teacher")
     db.session.add(teacher)
     exams = []
@@ -60,7 +60,7 @@ def seed_demo(app, grade_fn):
     db.session.commit()
 
     for idx, name in enumerate(STUDENTS):
-        email = f"sv{idx + 1}@demo.local"
+        email = f"student{idx + 1}@demo.local"
         student = User(external_id=f"dev:{email}", name=name, email=email, role="student")
         db.session.add(student)
         db.session.commit()
